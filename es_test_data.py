@@ -133,6 +133,12 @@ def get_data_for_format(format):
         for _ in range(count):
             words.append(""+random.choice(text))
         return_val = " ".join(words)
+        
+    elif field_type == "begin_dict":
+        return_val = "begin_dict"
+        
+    elif field_type == "end_dict":
+        return_val = "end_dict"
 
     return field_name, return_val
 
@@ -150,11 +156,19 @@ def generate_random_doc(format):
     global id_counter
 
     res = {}
+    
+    cursor = res
 
     for f in format:
         f_key, f_val = get_data_for_format(f)
         if f_key:
-            res[f_key] = f_val
+            if f_val == 'begin_dict':
+                cursor[f_key] = {}
+                cursor = cursor[f_key]
+            elif f_val == 'end_dict':
+                cursor = res
+            else:
+                cursor[f_key] = f_val
 
     if not tornado.options.options.id_type:
         return res
